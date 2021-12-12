@@ -1,0 +1,60 @@
+#!/bin/sh
+
+# Reference: http://roboojack.blogspot.in/2014/12/bulk-upload-your-local-maven-artifacts.html
+
+if [ "$#" -ne 4 ] || ! [ -d "$1" ]; then
+    echo "Usage:"
+    echo "       bash run.sh <repoRootFolder> <repositoryId> <repositoryUrl>"
+    echo ""
+    echo ""
+    echo "       Where..."
+    echo "       repoRootFolder: The folder containing the repository tree."
+    echo "                       Ensure you move the repository outside of ~/.m2 folder"
+    echo "                       or whatever is configured in settings.xml"
+    echo "       repositoryId:   The repositoryId from the <server> configured for the repositoryUrl in settings.xml."
+    echo "                       Ensure that you have configured username and password in settings.xml."
+    echo "       repositoryUrl:  The URL of the repository where you want to upload the files."
+    echo "       keyword:  The keyword of the path where you want to filter the files."
+    exit 1
+fi
+
+while read -r line ; do
+	if ! [[ $line =~ $4 ]]; then
+		continue
+	fi
+	url=$3
+	if [[ $line =~ SNAPSHOT ]]; then
+           #for snaphost ,replace with snapshot repository
+	   url=${url/%releases/snapshots}
+	   echo $url	
+	fi
+    	echo "Processing file $line"
+
+    pomLocation=${line/./}
+    pomLocation=$PWD${pomLocation/.jar/.pom}
+    jarLocation=${line/./}
+    jarLocation=$PWD${jarLocation/.pom/.jar}
+    sourceLocation=${line/./}
+    sourceLocation=$PWD${sourceLocation/.pom/-sources.jar}
+#    echo $pomLocation
+ #   echo $jarLocation
+#echo $sourceLocation
+    if [[ -e $jarLocation ]] && [[ -e $sourceLocation ]]; then
+	echo "both exist"	
+    /Users/jessin/Downloads/apache-maven-3.8.1/bin/mvn deploy:deploy-file -DpomFile=$pomLocation -Dfile=$jarLocation -Dsources=$sourceLocation  -DrepositoryId=$2 -Durl=$url
+    elif [[ -e $jarLocation ]]; then
+		
+	echo "jar exist"	
+    /Users/jessin/Downloads/apache-maven-3.8.1/bin/mvn deploy:deploy-file -DpomFile=$pomLocation -Dfile=$jarLocation  -DrepositoryId=$2 -Durl=$url
+    elif [[ -e $sourceLocation ]]; then
+
+	echo "source exist"	
+    /Users/jessin/Downloads/apache-maven-3.8.1/bin/mvn deploy:deploy-file -DpomFile=$pomLocation -Dsources=$sourceLocation  -DrepositoryId=$2 -Durl=$url
+    else
+	
+	echo "pom exist"	
+    /Users/jessin/Downloads/apache-maven-3.8.1/bin/mvn deploy:deploy-file -DpomFile=$pomLocation -Dfile=$pomLocation  -DrepositoryId=$2 -Durl=$url
+    fi
+done < <(find $1 -name "*.pom")
+
+
