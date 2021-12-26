@@ -4,11 +4,11 @@
 
 if [ "$#" -ne 4 ] || ! [ -d "$1" ]; then
     echo "Usage:"
-    echo "       bash run.sh <repoRootFolder> <repositoryId> <repositoryUrl>"
+    echo "       bash run.sh <repoRootFolder> <repositoryId> <repositoryUrl> <keyword>"
     echo ""
     echo ""
     echo "       Where..."
-    echo "       repoRootFolder: The folder containing the repository tree."
+    echo "       absolute repoRootFolder: The folder containing the repository tree."
     echo "                       Ensure you move the repository outside of ~/.m2 folder"
     echo "                       or whatever is configured in settings.xml"
     echo "       repositoryId:   The repositoryId from the <server> configured for the repositoryUrl in settings.xml."
@@ -30,12 +30,9 @@ while read -r line ; do
 	fi
     	echo "Processing file $line"
 
-    pomLocation=${line/./}
-    pomLocation=$PWD${pomLocation/.jar/.pom}
-    jarLocation=${line/./}
-    jarLocation=$PWD${jarLocation/.pom/.jar}
-    sourceLocation=${line/./}
-    sourceLocation=$PWD${sourceLocation/.pom/-sources.jar}
+    pomLocation=${line/.jar/.pom}
+    jarLocation=${line/.pom/.jar}
+    sourceLocation=${line/.pom/-sources.jar}
 #    echo $pomLocation
  #   echo $jarLocation
 #echo $sourceLocation
