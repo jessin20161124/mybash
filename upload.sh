@@ -1,6 +1,9 @@
 #!/bin/sh
+trap "echo Goodbye" EXIT
 
 # Reference: http://roboojack.blogspot.in/2014/12/bulk-upload-your-local-maven-artifacts.html
+
+# command demo: bash   upload.sh ~/Documents/qkk/Program/localRepository nexus http://localhost:8081/repository/maven-releases kkk
 
 if [ "$#" -ne 4 ] || ! [ -d "$1" ]; then
     echo "Usage:"
@@ -38,19 +41,19 @@ while read -r line ; do
 #echo $sourceLocation
     if [[ -e $jarLocation ]] && [[ -e $sourceLocation ]]; then
 	echo "both exist"	
-    /Users/jessin/Downloads/apache-maven-3.8.1/bin/mvn deploy:deploy-file -DpomFile=$pomLocation -Dfile=$jarLocation -Dsources=$sourceLocation  -DrepositoryId=$2 -Durl=$url
+    mvn deploy:deploy-file -DpomFile=$pomLocation -Dfile=$jarLocation -Dsources=$sourceLocation  -DrepositoryId=$2 -Durl=$url
     elif [[ -e $jarLocation ]]; then
 		
 	echo "jar exist"	
-    /Users/jessin/Downloads/apache-maven-3.8.1/bin/mvn deploy:deploy-file -DpomFile=$pomLocation -Dfile=$jarLocation  -DrepositoryId=$2 -Durl=$url
+    mvn deploy:deploy-file -DpomFile=$pomLocation -Dfile=$jarLocation  -DrepositoryId=$2 -Durl=$url
     elif [[ -e $sourceLocation ]]; then
 
 	echo "source exist"	
-    /Users/jessin/Downloads/apache-maven-3.8.1/bin/mvn deploy:deploy-file -DpomFile=$pomLocation -Dsources=$sourceLocation  -DrepositoryId=$2 -Durl=$url
+    mvn deploy:deploy-file -DpomFile=$pomLocation -Dsources=$sourceLocation  -DrepositoryId=$2 -Durl=$url
     else
 	
 	echo "pom exist"	
-    /Users/jessin/Downloads/apache-maven-3.8.1/bin/mvn deploy:deploy-file -DpomFile=$pomLocation -Dfile=$pomLocation  -DrepositoryId=$2 -Durl=$url
+    mvn deploy:deploy-file -DpomFile=$pomLocation -Dfile=$pomLocation  -DrepositoryId=$2 -Durl=$url
     fi
 done < <(find $1 -name "*.pom")
 
